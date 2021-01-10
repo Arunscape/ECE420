@@ -1,0 +1,11 @@
+var links = sc.parallelize(List((1,List(4)), (2,List(1)), (3,List(1,2)), (4,List(1,3)))) 
+var ranks = sc.parallelize(List((1,1.0),(2,1.0),(3,1.0),(4,1.0)))
+val ITERATIONS = 10
+
+for (i <- 1 to ITERATIONS) {
+  val contribs = links.join(ranks).flatMap {
+    case (url, (links, rank)) =>
+      links.map(dest => (dest, rank/links.size))
+  }
+  ranks = contribs.reduceByKey(_ + _).mapValues(0.15 + 0.85 * _)
+}
