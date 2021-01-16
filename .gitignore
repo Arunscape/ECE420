@@ -1,0 +1,6 @@
+notes.html
+notes.pdf
+notes.tex
+*.jpg
+.auctex-auto/
+converted_images/

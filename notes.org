@@ -1,4 +1,21 @@
-# Went over syllabus and summary of topics
+#+TITLE: ECE420 Notes
+#+Author: Arun Woosaree
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+ATTR_ORG: :width 256
+
+* Introduction
+** Definitions
+- Concurrent computing :: a program where multiple processes are in progress at any time (even with one core)
+  + ex: multitasking OS
+- Parallel computing :: a program in which multiple tasks cooperate closely to solve a problem
+  + tightly coupled, runs on the same machine
+  + processes share logical address spaces and memory
+  + relies on multiple processors
+- Distributed computing :: a program cooperates with other programs to solve a problem
+  + loosely coupled, runs on many machines
+  + on a single computer, you could have multiple separate programs too, and this would count
+  + processes do not share address spaces or physical memory
+
 * Parallel computing
 ** Why parallel computing?
 <2021-01-13 Wed>
@@ -29,3 +46,127 @@ Interface
 
 * Parallel Algorithms Design
 * Big Data Processing and Spark
+
+
+* Chapter 1
+    #+begin_src sh :cache yes :exports none :results silent
+    pdftoppm notes/lecture/Chapter\ 1.pdf  converted_images/sisd -jpeg -f 3 -singlefile
+    pdftoppm notes/lecture/Chapter\ 1.pdf  converted_images/simd -jpeg -f 4 -singlefile
+    pdftoppm notes/lecture/Chapter\ 1.pdf  converted_images/mimd -jpeg -f 5 -singlefile
+    pdfimages notes/lecture/Chapter\ 1.pdf -p -f 6 -l 6 -png converted_images/shared_memory
+    pdfimages notes/lecture/Chapter\ 1.pdf -p -f 7 -l 7 -png converted_images/distributed_memory
+    pdftoppm notes/lecture/Chapter\ 1.pdf converted_images/hybrid_distributed_shared_memory -jpeg -f 8 -singlefile
+
+    #+end_src
+** Definitions
+- <<<SISD>>> :: Single Instruction Stream Single Data Stream
+    #+ATTR_ORG: :width 256
+    [[./converted_images/sisd.jpg]]
+  + uniprocessor
+
+- <<<SIMD>>> :: Single Instruction Stream Multiple Data Stream
+  #+ATTR_ORG: :width 256
+  [[./converted_images/simd.jpg]]
+  + processors with local memory containing different data execute the same instruction in a synchronized fashion
+  + ex: array processors, GPU
+
+- <<<MISD>>> :: Multiple Instruction Stream Single Data Stream
+  + Fault tolerance, but mostly nonsense
+
+- <<<MIMD>>> :: Multiple Instruction Stream Multiple Data Stream
+    #+ATTR_ORG: :width 256
+    [[./converted_images/mimd.jpg]]
+  + multiple actions simultaneously on numerous data pieces
+  + multicore processors (most modern PCs)
+  + computer clusters, network of workstations
+
+- <<<Shared Memory>>> ::
+  #+ATTR_ORG: :width 256
+  [[./converted_images/shared_memory-006-004.png]]
+  + pros:
+    - data sharing between tasks is fast and uniform
+      + user friendly
+  + cons:
+    - no scalability between memory and CPUs
+
+  + *synchronization*, *correctly accessing shared resources*
+
+- <<<Distributed Memory>>> ::
+  #+ATTR_ORG: :width 256
+  [[./converted_images/distributed_memory-007-004.png]]
+  + pros:
+    - memory is scalable with number of processors
+      + cost effective, can use commodity off the self processors
+  + cons:
+    - data communication between processors
+      + difficult to map existing data structures to memory organization
+      + non-uniform memory access times: remote vs local
+
+- <<<Hybrid Distributed Shared Memory>>> ::
+  #+ATTR_ORG: :width 256
+  [[./converted_images/hybrid_distributed_shared_memory.jpg]]
+
+- <<<MPMD>>> :: Multiple Program Multiple Data
+  + mainly functional decomposition (client-server, etc)
+
+- <<<SPMD>>> :: Single Program Multiple Data
+  + in a single program, tasks are split and run simultaneously on multiple processors with different input
+  + use branch to implement data parallelism
+#+begin_example C
+if (I’m thread/process 0)
+  operate on the first half of the array;
+else /* I’m thread/process 1 */
+  operate on the second half of the array;
+#+end_example
+- <<<Thread>>> :: light weight subroutines in a program
+  + threads communicate with each other through global memory by writing and reading address locations
+- <<<Message Passing>>> Model :: a set of tasks that use their own local memory during computation
+  + tasks exchange data by sending and receiving messages
+  + data transfer usually requires cooperative operations to be performed by each process
+    - e.g. a send operation must have a matching receive operation
+    - e.g. MPI
+#+begin_example c
+// Pseudo Code
+char message[100]; ...
+my rank = Get rank();
+if (my rank == 1) {
+  sprintf(message, "Greetings from process 1");
+  Send(message, MSG CHAR, 100, 0);
+} else if (my rank == 0) {
+  Receive(message, MSG CHAR, 100, 1);
+  printf("Process 0 > Received: %s\n", message);
+}
+#+end_example
+- <<<Speedup>>> ::
+  + let \(T_1\) be the time to solve the problem sequentially
+  + let \(T_p\) be the time to solve the problem in parallel using \(p\) processors
+  + then \(S(p)\) for problem size n is:
+  \(S(p) = T_1 / T_p\)
+  + \(T_1\) represents the amount of work
+  + Speedup calculation:
+    - \(S(p) = p\) linear speedup or ideal speedup
+    - \(S(p) < p\) sublinear speedup (common)
+      + \(S(p+1) = S(p) + \delta\), where \(\delta < 1\) : diminishing returns (efficiency drop)
+        - idle time due to load unbalance
+        - overhead due to communication
+        - idle time due to synchronization
+        - extra computation in the algorithm of the parallel program
+        - many more reasons
+      + \(S(p+1) < S(p)\) slowdown
+        - overheads are \(O(p)\) but work remains \(O(n)\)
+        - contention for a resource depends on p
+      + \(S(p) > p\) Fallacy!
+- <<<Overhead>>> ::
+  \(T_p = T_1/p + T_{overhead}\)
+- <<<Efficiency>>> ::
+  \(E(p) = S(p) / p\)
+- <<<Amdahl's Law>>> :: The speedup of a parallel program is inherently limited by its sequential portion
+  - if x fraction of a serial program can be parallelized and it takes time \(T_1\) to run the serial program, then the speedup is at most
+
+    \begin{equation}
+        S(p) = \frac{T_1}{T_p} \leq \frac{T_1}{x T_1/p + (1-x) T_1}
+    \end{equation}
+
+   \begin{equation}
+    \lim_{p \to \infty} S(p) \leq \frac{1}{1-x}
+   \end{equation}
