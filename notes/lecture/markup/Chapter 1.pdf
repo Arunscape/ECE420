@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<meta name="description" content="University of Alberta Single Sign On">
+		<meta name="robots" content="noindex, nofollow" />
+		<link rel="icon" href="../../favicon.ico">
+
+		<title>Missing cookie</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="https://login.ualberta.ca/module.php/themeuofa/css/bootstrap.css" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link href="https://login.ualberta.ca/module.php/themeuofa/css/if.css" rel="stylesheet">
+		<link href="https://login.ualberta.ca/module.php/themeuofa/css/fonts.css" rel="stylesheet">
+
+		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+			<script src="https://login.ualberta.ca/module.php/themeuofa/js/html5shiv.min.js"></script>
+			<script src="https://login.ualberta.ca/module.php/themeuofa/js/respond.min.js"></script>
+		<![endif]-->
+
+		<!-- This is for legacy support for the portal module -->
+		<script src="https://login.ualberta.ca/module.php/themeuofa/js/jquery-2.0.3.js"></script>
+		<script src="https://login.ualberta.ca/module.php/themeuofa/js/jquery-1.6.address.min.js"></script>
+		<script tyle="text/javascript">
+			$(document).ready(function(){
+				//$('.ui.accordion').accordion();
+				//$('.ui.dropdown').dropdown();
+			});
+		</script>
+
+		<!-- Javascript for selfserve module -->
+		<script tyle="text/javascript">
+			$(document).ready(function() {
+        var counter = 9;
+        var interval = setInterval(function() {
+          if(counter == 1) {
+            $('#ss_continue').removeClass('disabled');
+            $('#ss_continue').prop('disabled', false);
+          }
+          if(counter <= 0) {
+            $('#ss_continue').trigger('click');
+            clearInterval(interval);
+          } else {
+            $('#ss_timer').text('Continue Login in ' + counter);
+          }
+          counter--;
+        }, 1000);
+      });
+		</script>
+
+	</head>
+
+	<body>
+		<!-- Blade -->
+		<nav class="blade">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#quick-links" aria-expanded="false" aria-controls="quick-links">
+						Quick Links
+						<span class="caret"></span>
+					</button>
+				</div>
+				<div class="navigation">
+					<div id="quick-links" class="navbar-collapse collapse">
+						<ul class="nav navbar-nav navbar-right">
+							<li><a href="http://webapps.srv.ualberta.ca/search/">Find a Person</a></li>
+							<li><a href="http://onecard.ualberta.ca/">ONEcard</a></li>
+							<li><a href="https://www.beartracks.ualberta.ca/">Bear Tracks</a></li>
+							<li><a href="http://www.campusmap.ualberta.ca/">Maps</a></li>
+							<li><a href="http://apps.ualberta.ca/">Email &amp; Apps</a></li>
+							<li><a href="https://eclass.srv.ualberta.ca/portal/">eClass</a></li>
+							<li><a href="http://www.library.ualberta.ca/">Libraries</a></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</nav>
+		<!--/ Blade -->
+
+		<!-- Navbar -->
+		<nav class="navbar navbar-menu">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="https://ualberta.ca">
+						<img src="https://login.ualberta.ca/module.php/themeuofa/img/logo-reverse.svg" alt="University of Alberta" />
+					</a>
+				</div>
+			</div>
+		</nav>
+		<!--/ Navbar -->
+
+
+		<div class="container" role="main">
+			<div class="row">
+				<div class="col-sm-12">
+					<h1>Missing cookie</h1>
+					<p>You appear to have disabled cookies in your browser. Please check the settings in your browser, and try again.</p>
+										<a class="btn btn-default" href="https://login.ualberta.ca/saml2/idp/SSOService.php?spentityid=https%3A%2F%2Feclass.srv.ualberta.ca%2Fsp&amp;RelayState=https%3A%2F%2Feclass.srv.ualberta.ca%2Flogin%2Findex.php&amp;cookieTime=1611158595">Retry</a>
+									</div>
+			</div>
+		</div>
+
+
+		<!-- Footer -->
+		<footer class="navbar navbar-footer">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menu" aria-expanded="false" aria-controls="menu">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div class="navigation">
+					<div id="menu" class="navbar-collapse collapse">
+						<ul class="nav navbar-nav navbar">
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+				<div class="copyright">
+					Copyright &copy; 2021 &mdash; <a href="https://ualberta.ca/">University of Alberta</a>
+				</div>
+			</div>
+		</footer>
+		<!--/ Footer -->
+
+		<!-- Bootstrap core JavaScript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="https://login.ualberta.ca/module.php/themeuofa/js/jquery-1.11.3.min.js"></script>
+		<script src="https://login.ualberta.ca/module.php/themeuofa/js/bootstrap.min.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="https://login.ualberta.ca/module.php/themeuofa/js/ie10-viewport-bug-workaround.js"></script>
+		<!-- Clipboard.js -->
+		<script src="https://login.ualberta.ca/module.php/themeuofa/js/clipboard.js"></script>
+		<script tyle="text/javascript">
+			var clipboard = new Clipboard('.btn-copy');
+
+			clipboard.on('success', function(e) {
+				$(e.trigger).attr('data-original-title', 'Copied!');
+				$(e.trigger).tooltip('show');
+				setTimeout(function(){ $(e.trigger).tooltip('hide'); }, 3000);
+
+				e.clearSelection();
+			});
+
+			clipboard.on('error', function(e) {
+				$(e.trigger).attr('data-original-title', 'Press ⌘/Ctrl-C to copy!');
+				$(e.trigger).tooltip('show');
+				setTimeout(function(){ $(e.trigger).tooltip('hide'); }, 3000);
+			});
+
+			$(function () {
+				$('.btn-copy').tooltip({'trigger': 'manual'});
+			})
+		</script>
+	</body>
+</html>

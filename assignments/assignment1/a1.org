@@ -1,0 +1,13 @@
+#+TITLE:ECE 420 Assignment 1
+#+Author: Arun Woosaree
+
+#+LaTeX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [letterpaper]
+#+OPTIONS: toc:nil
+
+* Flynn's Taxonomy
+** SISD
+SISD stands for Single Instruction Stream, Single Data Stream. An SISD system has a single uniprocessor, which executes a single instruction stream to operate on data stored in a single.
+
+An example that would fit in this category is a single core superscalar processor
+https://en.wikipedia.org/wiki/Superscalar_processor

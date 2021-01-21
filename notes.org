@@ -50,15 +50,17 @@ Interface
 
 * Chapter 1
     #+begin_src sh :cache yes :exports none :results silent
-    pdftoppm notes/lecture/Chapter\ 1.pdf  converted_images/sisd -jpeg -f 3 -singlefile
-    pdftoppm notes/lecture/Chapter\ 1.pdf  converted_images/simd -jpeg -f 4 -singlefile
-    pdftoppm notes/lecture/Chapter\ 1.pdf  converted_images/mimd -jpeg -f 5 -singlefile
-    pdfimages notes/lecture/Chapter\ 1.pdf -p -f 6 -l 6 -png converted_images/shared_memory
-    pdfimages notes/lecture/Chapter\ 1.pdf -p -f 7 -l 7 -png converted_images/distributed_memory
-    pdftoppm notes/lecture/Chapter\ 1.pdf converted_images/hybrid_distributed_shared_memory -jpeg -f 8 -singlefile
+    pdftoppm notes/lecture/markup/Chapter\ 1.pdf  converted_images/sisd -jpeg -f 3 -singlefile
+    pdftoppm notes/lecture/markup/Chapter\ 1.pdf  converted_images/simd -jpeg -f 4 -singlefile
+    pdftoppm notes/lecture/markup/Chapter\ 1.pdf  converted_images/mimd -jpeg -f 5 -singlefile
+    pdfimages notes/lecture/markup/Chapter\ 1.pdf -p -f 6 -l 6 -png converted_images/shared_memory
+    pdfimages notes/lecture/markup/Chapter\ 1.pdf -p -f 7 -l 7 -png converted_images/distributed_memory
+    pdftoppm notes/lecture/markup/Chapter\ 1.pdf converted_images/hybrid_distributed_shared_memory -jpeg -f 8 -singlefile
 
     #+end_src
 ** Definitions
+*** Flynn's Taxonomy
+TODO: just get the images from wikipedia https://en.wikipedia.org/wiki/Flynn%27s_taxonomy
 - <<<SISD>>> :: Single Instruction Stream Single Data Stream
     #+ATTR_ORG: :width 256
     [[./converted_images/sisd.jpg]]
@@ -80,6 +82,7 @@ Interface
   + multicore processors (most modern PCs)
   + computer clusters, network of workstations
 
+***
 - <<<Shared Memory>>> ::
   #+ATTR_ORG: :width 256
   [[./converted_images/shared_memory-006-004.png]]
@@ -118,31 +121,35 @@ if (I’m thread/process 0)
 else /* I’m thread/process 1 */
   operate on the second half of the array;
 #+end_example
-- <<<Thread>>> :: light weight subroutines in a program
+- Thread :: light weight subroutines in a program
   + threads communicate with each other through global memory by writing and reading address locations
 - <<<Message Passing>>> Model :: a set of tasks that use their own local memory during computation
   + tasks exchange data by sending and receiving messages
   + data transfer usually requires cooperative operations to be performed by each process
     - e.g. a send operation must have a matching receive operation
     - e.g. MPI
+  + a process can have multiple other processes, but each process has its own memory space. threads share memory space
 #+begin_example c
 // Pseudo Code
 char message[100]; ...
-my rank = Get rank();
+my rank = Get rank(); // get the rank of the process
 if (my rank == 1) {
   sprintf(message, "Greetings from process 1");
-  Send(message, MSG CHAR, 100, 0);
+  Send(message, MSG CHAR, 100, 0); // send message to process 0
 } else if (my rank == 0) {
-  Receive(message, MSG CHAR, 100, 1);
+  Receive(message, MSG CHAR, 100, 1); // receive from process 1
   printf("Process 0 > Received: %s\n", message);
 }
 #+end_example
 - <<<Speedup>>> ::
   + let \(T_1\) be the time to solve the problem sequentially
   + let \(T_p\) be the time to solve the problem in parallel using \(p\) processors
+  + n is the data size
   + then \(S(p)\) for problem size n is:
-  \(S(p) = T_1 / T_p\)
-  + \(T_1\) represents the amount of work
+\[
+    S(p) = \frac{T_1}{T_p} \leq p
+\]
+  + \(T_1\) represents the amount of work (will be a function of n)
   + Speedup calculation:
     - \(S(p) = p\) linear speedup or ideal speedup
     - \(S(p) < p\) sublinear speedup (common)
@@ -155,18 +162,76 @@ if (my rank == 1) {
       + \(S(p+1) < S(p)\) slowdown
         - overheads are \(O(p)\) but work remains \(O(n)\)
         - contention for a resource depends on p
-      + \(S(p) > p\) Fallacy!
-- <<<Overhead>>> ::
+      + \(S(p) > p\) Fallacy
+      + Diminishing returns as p (processors) increase
+        + decrease in efficiency
+        + each p has overhead or the need for synchronization
+        + when you increase n, the efficiency goes up. the angle from origin is the efficiency
+        + TODO: insert speedup curves chart here from chapter 1
+  + <<<Overhead>>> ::
   \(T_p = T_1/p + T_{overhead}\)
+  - minimum possible parallel time
 - <<<Efficiency>>> ::
-  \(E(p) = S(p) / p\)
+  \(E(p) = S(p) / p \leq 1\)
+  - if \(T_{overhead>0, E(p) < 1}\)
 - <<<Amdahl's Law>>> :: The speedup of a parallel program is inherently limited by its sequential portion
   - if x fraction of a serial program can be parallelized and it takes time \(T_1\) to run the serial program, then the speedup is at most
 
-    \begin{equation}
-        S(p) = \frac{T_1}{T_p} \leq \frac{T_1}{x T_1/p + (1-x) T_1}
-    \end{equation}
+    - \(1-x\) fraction of the program cannot be parallelized
 
-   \begin{equation}
+    \(
+        S(p) = \frac{T_1}{T_p} \leq \frac{T_1}{x T_1/p + (1-x) T_1}
+    \)
+
+   \[
     \lim_{p \to \infty} S(p) \leq \frac{1}{1-x}
-   \end{equation}
+   \]
+
+** Processes
+- Processes :: contain information about program resources and program execution state, including
+  + process ID
+  + process group ID
+  + environment
+  + working directory
+  + program instructions
+  + registers
+  + stack
+  + heap
+  + file descriptors
+  + signal actions
+  + shared libraries
+  + inter-process communication tools
+- Stack :: region of memory that stores temporary variables created by each function
+  + the stack grows and shrinks as functions push and pop local variables
+  + no need to manage memory yourself
+  + the stack has size limits
+  + stack variables only exist while the function that created them is running
+  + stack is fast
+- Heap :: more free floating region of memory, larger than the stack
+  + use malloc and calloc to allocate, free to deallocate
+  + the heap does not have size restrictions
+  + heap variables are essentially global in scope (well, in C, not if you're using safe Rust I guess haha)
+- Thread :: a "procedure" in a process that runs independently from its main program
+  + Threads only maintain essential resources to exist as executable code
+    - stack pointer
+    - registers
+    - scheduling properties (policy of priority)
+    - set of pending and blocked signals
+    - thread specific data
+    - threads are lightweight
+  + POSIX threads (pthread) ::
+
+    - lightweight, faster startup: fork vs pthread_create
+    - efficient communication
+      + no need to copy data from process to process like in fork
+      + no data transfer because threads share address space in a process
+      + pthread communications are mostly memory to CPU which is fast
+    - hides memory and I/O latency on a single core processor
+    - priority/real time scheduling
+    - async event handling (like a web server)
+
+** Design Multithreaded programs
+- manager/worker :: a single thread, the manager assigns work to other threads (workers). Static/dynamic worker pool
+- peer :: similar to manager/worker model, but after the main thread creates the others, it also participates in the work
+- pipeline :: a task is broken into a series of suboperations, each of which is handles in series but concurrently by a different thread, like an assembly line for cars
+- shared memory model :: all threads have access to the same global shared memory
