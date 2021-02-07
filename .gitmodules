@@ -1,6 +1,3 @@
-[submodule "ECE422-lab"]
-	path = ECE420-lab
-	url = git@github.com:Arunscape/ECE420-lab.git
 [submodule "ECE420-lab"]
 	path = ECE420-lab
 	url = git@github.com:Arunscape/ECE420-lab.git
