@@ -7,7 +7,25 @@
 
 * Flynn's Taxonomy
 ** SISD
-SISD stands for Single Instruction Stream, Single Data Stream. An SISD system has a single uniprocessor, which executes a single instruction stream to operate on data stored in a single.
+SISD stands for Single Instruction Stream, Single Data Stream. A SISD system has a single uniprocessor, which executes a single instruction stream to operate on data stored in a single.
 
-An example that would fit in this category is a single core superscalar processor
+An example that would fit in this category is a single core superscalar processor like the AMD 29050
 https://en.wikipedia.org/wiki/Superscalar_processor
+
+** SIMD
+SIMD stands for Single Instruction Stream, Multiple Data Stream. A SIMD system has multiple processing units which all simultaneously do the same operation on multiple points in a data pool in a synchronized fashion.
+
+An example that would fit in this category is a modern graphics processing unit, like the AMD Radeon 6900 XT
+
+** MISD
+MISD stands for Multiple Instruction Stream, Single Data Stream. A MISD system has multiple processing units performing different operations on the same data simultaneously. It can be used for reliability or fault tolerance, if the same operation is being done multiple times on the same data.
+
+An example of an MISD system is the computer responsible for the Space Shuttle flight control. The Space Shuttle is also known as the low orbit spacecraft that helped launch the Hubble telescope, among other space missions.
+- https://en.wikipedia.org/wiki/MISD#cite_note-1
+- https://en.wikipedia.org/wiki/Space_Shuttle
+
+** MIMD
+MIMD stands for Multiple Instruction Stream, Multiple Data Stream. A MIMD system has many processing units which each perform operations independently from each other at the same time. That is, each unit can be doing different operations on different pieces of data at any given time.
+
+An example of a MIMD system is almost any modern multicore processor, like the AMD Ryzen 9 5950X.
+Another example could be a computer cluster, or a network of workstations.
