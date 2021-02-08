@@ -1,4 +1,4 @@
-% Created 2021-02-07 Sun 17:22
+% Created 2021-02-07 Sun 19:01
 % Intended LaTeX compiler: pdflatex
 \documentclass[letterpaper]{article}
 \usepackage[utf8]{inputenc}
@@ -31,60 +31,60 @@
 \maketitle
 
 \section{Flynn's Taxonomy}
-\label{sec:orgc566af2}
+\label{sec:org05a99dd}
 \subsection{SISD}
-\label{sec:org22fbb6c}
+\label{sec:org574048d}
 SISD stands for Single Instruction Stream, Single Data Stream. A SISD system has a single uniprocessor, which executes a single instruction stream to operate on data stored in a single.
 
 An example that would fit in this category is a single core superscalar processor like the AMD 29050
 Reference: \url{https://en.wikipedia.org/wiki/Superscalar\_processor}
 
 \subsection{SIMD}
-\label{sec:org8406644}
+\label{sec:orgac93f4c}
 SIMD stands for Single Instruction Stream, Multiple Data Stream. A SIMD system has multiple processing units which all simultaneously do the same operation on multiple points in a data pool in a synchronized fashion.
 
 An example that would fit in this category is a modern graphics processing unit, like the AMD Radeon 6900 XT
 
 \subsection{MISD}
-\label{sec:org445a21c}
+\label{sec:orgec33200}
 MISD stands for Multiple Instruction Stream, Single Data Stream. A MISD system has multiple processing units performing different operations on the same data simultaneously. It can be used for reliability or fault tolerance, if the same operation is being done multiple times on the same data.
 
 An example of an MISD system is the computer responsible for the Space Shuttle flight control. The Space Shuttle is also known as the low orbit spacecraft that helped launch the Hubble telescope, among other space missions.
 References: \url{https://en.wikipedia.org/wiki/MISD\#cite\_note-1} \url{https://en.wikipedia.org/wiki/Space\_Shuttle}
 
 \subsection{MIMD}
-\label{sec:org557d1f3}
+\label{sec:org083e9b8}
 MIMD stands for Multiple Instruction Stream, Multiple Data Stream. A MIMD system has many processing units which each perform operations independently from each other at the same time. That is, each unit can be doing different operations on different pieces of data at any given time.
 
 An example of a MIMD system is almost any modern multicore processor, like the AMD Ryzen 9 5950X.
 Another example could be a computer cluster, or a network of workstations.
 
 \section{Shared Memory vs Distributed Memory}
-\label{sec:org20a5fdd}
+\label{sec:org9f2731d}
 \subsection{Shared Memory}
-\label{sec:org2aa435f}
+\label{sec:org96062d9}
 \subsubsection{Pros}
-\label{sec:orge3e94ec}
+\label{sec:org5d4f3bc}
 \begin{itemize}
 \item user friendly programming perspective to memory
 \item data sharing between tasks is fast and uniform
 \end{itemize}
 \subsubsection{Cons}
-\label{sec:orgd9b20bf}
+\label{sec:org19e1393}
 \begin{itemize}
 \item no scalability between memory and CPUs
 \item if you want more power,
 \end{itemize}
 \subsection{Distributed Memory}
-\label{sec:org0dd4e10}
+\label{sec:orgad73d36}
 \subsubsection{Pros}
-\label{sec:org8c23570}
+\label{sec:orgb6cc82b}
 \begin{itemize}
 \item memory is scalable with the number of processors
 \item this is cost effective, because lots of cheap, commodity hardware can be used as opposed to upgrading a monolithic, more expensive structure
 \end{itemize}
 \subsubsection{Cons}
-\label{sec:org8063700}
+\label{sec:org45fc711}
 \begin{itemize}
 \item data communication between processors is more difficult
 \item it is difficult to map existing data structures to the memory organization
@@ -94,7 +94,7 @@ access times can be much slower compared to a MIMD system
 \end{itemize}
 
 \section{Amdahl's Law}
-\label{sec:orgcb7e584}
+\label{sec:orgbbeb046}
 
 \begin{thm}
     If \(y\) fraction of a serial program cannot be parallelized, \(1/y\) is an upper bound on the speedup of its parallel program, no matter how many processing elements are used.
@@ -126,4 +126,55 @@ Simplifying \ref{almostthere}, we get:
 
 This proves that \(1/y\) is an upper bound for the speedup of a program, no matter how many processing elements are used, given that \(y\) is the fraction of a serial program that cannot be parallelized
 \end{proof}
+
+\section{Efficiency}
+\label{sec:orgc49cbae}
+Given:
+
+p is the number of processors, n is the problem size, and
+\[T_{serial} = n\]
+and
+\[T_{parallel} = \frac{n}{p} + \log_2 (p)\]
+
+Using Amdahl's law, Efficiency is:
+\begin{equation*}
+E(p) = \frac{S(p)}{p} = \frac{T_{serial}/T_{parallel}}{p}
+\end{equation*}
+
+Substituting the above equations, we get
+
+\[E(p) = \frac{n}{p (\frac{n}{p} + \log_2 (p)) } \]
+
+This simplifies to
+\[ E(p) = \frac{n}{n + p \log_2 p} \]
+
+If we increase \(p\) by a factor of \(k\), how much would we need to increase \(n\) by a factor of say, \(q\)?
+
+\[
+ \frac{n}{n + p \log_2 p} = \frac{qn}{qn + pk \log_2 pk}
+\]
+\[
+ \frac{1}{n + p \log_2 p} = \frac{q}{qn + pk \log_2 pk}
+\]
+\[
+ qn + pk \log_2(pk) = qn + qp\log_2 p
+\]
+\[
+ pk \log_2(pk) =  qp\log_2 p
+\]
+\[
+ k \log_2(pk) =  q\log_2 p
+\]
+\[
+ q = \frac{k \log_2(pk)}{\log_2 p}
+\]
+
+
+Thus, we can clearly see that if \(p\) is increased by a factor of \(k\),
+the factor \(q\) which n would also have to be increased by to maintain the same efficiency is not equal to \(k\).
+
+
+There is one interesting result: If you were to somehow have \emph{infinite} processors \(p\):
+\[ \lim_{p \to \infty } \frac{k \log_2 (pk)}{\log_2 p} = k\]
+so, if there were infinite processors, n would increase at the same rate as p, but this theoretical scenario does not make much sense haha.
 \end{document}

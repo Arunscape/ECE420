@@ -82,3 +82,53 @@ Simplifying \ref{almostthere}, we get:
 
 This proves that \(1/y\) is an upper bound for the speedup of a program, no matter how many processing elements are used, given that \(y\) is the fraction of a serial program that cannot be parallelized
 \end{proof}
+
+* Efficiency
+Given:
+
+p is the number of processors, n is the problem size, and
+\[T_{serial} = n\]
+and
+\[T_{parallel} = \frac{n}{p} + \log_2 (p)\]
+
+Using Amdahl's law, Efficiency is:
+\begin{equation*}
+E(p) = \frac{S(p)}{p} = \frac{T_{serial}/T_{parallel}}{p}
+\end{equation*}
+
+Substituting the above equations, we get
+
+\[E(p) = \frac{n}{p (\frac{n}{p} + \log_2 (p)) } \]
+
+This simplifies to
+\[ E(p) = \frac{n}{n + p \log_2 p} \]
+
+If we increase \(p\) by a factor of \(k\), how much would we need to increase \(n\) by a factor of say, \(q\)?
+
+\[
+ \frac{n}{n + p \log_2 p} = \frac{qn}{qn + pk \log_2 pk}
+\]
+\[
+ \frac{1}{n + p \log_2 p} = \frac{q}{qn + pk \log_2 pk}
+\]
+\[
+ qn + pk \log_2(pk) = qn + qp\log_2 p
+\]
+\[
+ pk \log_2(pk) =  qp\log_2 p
+\]
+\[
+ k \log_2(pk) =  q\log_2 p
+\]
+\[
+ q = \frac{k \log_2(pk)}{\log_2 p}
+\]
+
+
+Thus, we can clearly see that if \(p\) is increased by a factor of \(k\),
+the factor \(q\) which n would also have to be increased by to maintain the same efficiency is not equal to \(k\).
+
+
+There is one interesting result: If you were to somehow have /infinite/ processors \(p\):
+\[ \lim_{p \to \infty } \frac{k \log_2 (pk)}{\log_2 p} = k\]
+so, if there were infinite processors, n would increase at the same rate as p, but this theoretical scenario does not make much sense haha.
