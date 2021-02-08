@@ -132,3 +132,9 @@ the factor \(q\) which n would also have to be increased by to maintain the same
 There is one interesting result: If you were to somehow have /infinite/ processors \(p\):
 \[ \lim_{p \to \infty } \frac{k \log_2 (pk)}{\log_2 p} = k\]
 so, if there were infinite processors, n would increase at the same rate as p, but this theoretical scenario does not make much sense haha.
+
+* Question 5
+The two programs have different output. The first program always has an exit code of 10, while the second program seems
+to return a random number.
+
+What's going on here is that in program 1, the memory is allocated on the heap, while in program 2, the memory is allocated on the stack. In the first program, because the memory is allocated on the heap, it is available globally to the entire program, including other threads, until the program ends, or until the memory is manually freed. The memory allocated for pointer b is set to the value of 10, and when the thread exits, the memory is left unchanged because ~free()~ has not been called on it. This is why the correct value of 10 is printed out by the program. In program 2, the pointer b points to a variable allocated on the stack. This is not good! When the thread exits, that region of memory is freed because the number variable goes out of scope. That leaves b pointing to an unallocated region in memory, and this can cause undefined behaviour. This is why I get random numbers on my machine. When the number variable in program 2 goes out of scope, the pointer to that value is known as a dangling pointer.
