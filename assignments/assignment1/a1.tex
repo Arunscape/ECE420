@@ -1,4 +1,4 @@
-% Created 2021-02-07 Sun 16:50
+% Created 2021-02-07 Sun 17:22
 % Intended LaTeX compiler: pdflatex
 \documentclass[letterpaper]{article}
 \usepackage[utf8]{inputenc}
@@ -14,6 +14,8 @@
 \usepackage{amssymb}
 \usepackage{capt-of}
 \usepackage{hyperref}
+\usepackage{amsthm}
+\newtheorem{thm}{}
 \author{Arun Woosaree}
 \date{\today}
 \title{ECE 420 Assignment 1}
@@ -29,60 +31,60 @@
 \maketitle
 
 \section{Flynn's Taxonomy}
-\label{sec:org0d354b8}
+\label{sec:orgc566af2}
 \subsection{SISD}
-\label{sec:orgff2e8bc}
+\label{sec:org22fbb6c}
 SISD stands for Single Instruction Stream, Single Data Stream. A SISD system has a single uniprocessor, which executes a single instruction stream to operate on data stored in a single.
 
 An example that would fit in this category is a single core superscalar processor like the AMD 29050
 Reference: \url{https://en.wikipedia.org/wiki/Superscalar\_processor}
 
 \subsection{SIMD}
-\label{sec:orgccb20ca}
+\label{sec:org8406644}
 SIMD stands for Single Instruction Stream, Multiple Data Stream. A SIMD system has multiple processing units which all simultaneously do the same operation on multiple points in a data pool in a synchronized fashion.
 
 An example that would fit in this category is a modern graphics processing unit, like the AMD Radeon 6900 XT
 
 \subsection{MISD}
-\label{sec:org49977a4}
+\label{sec:org445a21c}
 MISD stands for Multiple Instruction Stream, Single Data Stream. A MISD system has multiple processing units performing different operations on the same data simultaneously. It can be used for reliability or fault tolerance, if the same operation is being done multiple times on the same data.
 
 An example of an MISD system is the computer responsible for the Space Shuttle flight control. The Space Shuttle is also known as the low orbit spacecraft that helped launch the Hubble telescope, among other space missions.
 References: \url{https://en.wikipedia.org/wiki/MISD\#cite\_note-1} \url{https://en.wikipedia.org/wiki/Space\_Shuttle}
 
 \subsection{MIMD}
-\label{sec:org4b911dc}
+\label{sec:org557d1f3}
 MIMD stands for Multiple Instruction Stream, Multiple Data Stream. A MIMD system has many processing units which each perform operations independently from each other at the same time. That is, each unit can be doing different operations on different pieces of data at any given time.
 
 An example of a MIMD system is almost any modern multicore processor, like the AMD Ryzen 9 5950X.
 Another example could be a computer cluster, or a network of workstations.
 
 \section{Shared Memory vs Distributed Memory}
-\label{sec:org45e3b88}
+\label{sec:org20a5fdd}
 \subsection{Shared Memory}
-\label{sec:org84024cc}
+\label{sec:org2aa435f}
 \subsubsection{Pros}
-\label{sec:orgb1350c1}
+\label{sec:orge3e94ec}
 \begin{itemize}
 \item user friendly programming perspective to memory
 \item data sharing between tasks is fast and uniform
 \end{itemize}
 \subsubsection{Cons}
-\label{sec:org79802db}
+\label{sec:orgd9b20bf}
 \begin{itemize}
 \item no scalability between memory and CPUs
 \item if you want more power,
 \end{itemize}
 \subsection{Distributed Memory}
-\label{sec:org3f87b7c}
+\label{sec:org0dd4e10}
 \subsubsection{Pros}
-\label{sec:org790fb19}
+\label{sec:org8c23570}
 \begin{itemize}
 \item memory is scalable with the number of processors
 \item this is cost effective, because lots of cheap, commodity hardware can be used as opposed to upgrading a monolithic, more expensive structure
 \end{itemize}
 \subsubsection{Cons}
-\label{sec:org5bce5e7}
+\label{sec:org8063700}
 \begin{itemize}
 \item data communication between processors is more difficult
 \item it is difficult to map existing data structures to the memory organization
@@ -90,4 +92,38 @@ Another example could be a computer cluster, or a network of workstations.
 access times can be much slower compared to a MIMD system
 \item more overhead for the programmer. The programmer has to think about message passing
 \end{itemize}
+
+\section{Amdahl's Law}
+\label{sec:orgcb7e584}
+
+\begin{thm}
+    If \(y\) fraction of a serial program cannot be parallelized, \(1/y\) is an upper bound on the speedup of its parallel program, no matter how many processing elements are used.
+\end{thm}
+
+\begin{proof}
+If \(y\) is the fraction of a serial program that cannot be parallelized, then the fraction \(x\) which is the fraction of the program that can be parallelized is found by:
+\begin{equation}\label{oneminus}
+x =  (1-y)
+\end{equation}
+
+According to Amdahl's law, the upper limit for speedup of a parallel program is:
+\begin{equation}\label{upperlim}
+\lim_{p \to \infty} S(p) \leq \frac{1}{1-x}
+\end{equation}
+where \(p\) is the number of processing elements.
+
+Substituting equation \ref{oneminus} into \ref{upperlim}, we get:
+
+\begin{equation}\label{almostthere}
+\lim_{p \to \infty} S(p) \leq \frac{1}{1-(1-y)}
+\end{equation}
+
+Simplifying \ref{almostthere}, we get:
+
+\begin{equation}
+\lim_{p \to \infty} S(p) \leq \frac{1}{y}
+\end{equation}
+
+This proves that \(1/y\) is an upper bound for the speedup of a program, no matter how many processing elements are used, given that \(y\) is the fraction of a serial program that cannot be parallelized
+\end{proof}
 \end{document}
