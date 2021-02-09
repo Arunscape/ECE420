@@ -7,6 +7,17 @@
 #+latex_header: \newtheorem{thm}{}
 #+OPTIONS: toc:nil
 
+#+begin_src elisp :exports none
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+end_src
+
+#+RESULTS:
+| pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f | pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f |
+
 * Flynn's Taxonomy
 ** SISD
 SISD stands for Single Instruction Stream, Single Data Stream. A SISD system has a single uniprocessor, which executes a single instruction stream to operate on data stored in a single.
@@ -133,8 +144,15 @@ There is one interesting result: If you were to somehow have /infinite/ processo
 \[ \lim_{p \to \infty } \frac{k \log_2 (pk)}{\log_2 p} = k\]
 so, if there were infinite processors, n would increase at the same rate as p, but this theoretical scenario does not make much sense haha.
 
-* Question 5
+* Stack vs Heap allocation in pthread
 The two programs have different output. The first program always has an exit code of 10, while the second program seems
 to return a random number.
 
 What's going on here is that in program 1, the memory is allocated on the heap, while in program 2, the memory is allocated on the stack. In the first program, because the memory is allocated on the heap, it is available globally to the entire program, including other threads, until the program ends, or until the memory is manually freed. The memory allocated for pointer b is set to the value of 10, and when the thread exits, the memory is left unchanged because ~free()~ has not been called on it. This is why the correct value of 10 is printed out by the program. In program 2, the pointer b points to a variable allocated on the stack. This is not good! When the thread exits, that region of memory is freed because the number variable goes out of scope. That leaves b pointing to an unallocated region in memory, and this can cause undefined behaviour. This is why I get random numbers on my machine. When the number variable in program 2 goes out of scope, the pointer to that value is known as a dangling pointer.
+
+
+* Condition variables and mutex
+#+include: "./6.c" src c
+
+* Producer/consumer buffer using mutex and condition variables
+#+include: "./7.c" src c
