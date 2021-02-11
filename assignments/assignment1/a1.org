@@ -156,3 +156,23 @@ What's going on here is that in program 1, the memory is allocated on the heap, 
 
 * Producer/consumer buffer using mutex and condition variables
 #+include: "./7.c" src c
+
+* False sharing
+
+The matrix with dimensions 8 x 8,000,000 is most likely to have false sharing.
+In the Chapter 1 slides, we see that the efficiency with 2 and 4 threads is lower than with the other two matrices with 8,000,000 x 8 and 8000 x 8000 dimensions. This is because when we are doing the matrix multiplication,
+we are updating only eight locations that are close together in memory. So, when we assign more threads to do the
+multiplication task, they are continuously updating regions in memory that are close together. False sharing happens
+when threads with separate caches access different variables that belong to the same cache line. Because there are only 8 location in memory here, it is likely that they are in the same cache line, so when multiple threads are updating those regions in memory, it is very likely that they are going to invalidate the entire cache line, even if the variable another
+thread is currently reading has not been updated. The other two matrices do not see the same problem, to the same degree, because with more locations to write to, it is less likely that a thread will accidentally invalidate the cache line of another thread since the data that a thread is currently working on is less likely going to be on the same cache line as another thread.
+
+There are a few ways we can avoid false sharing. Here are two of them:
+
+** Padding
+We could pad the global data structure with dummy elements to make sure that any update by one thread won't affect the other's cache line. This would involve using the compiler ~__declspec (align(n))~ statement
+
+** Local variable
+We could avoid frequent writing to the global data that is accessed from multiple threads by having each thread use its own private storage during the multiplication loop. When the thread is done, then we can update the shared storage.
+It should be noted that this method does not completely avoid false sharing,
+since we update the global object at the end, however, the number of writes to the global object is greatly reduced.
+This lowers the chance of the cache being invalidated by a lot, compared to not using a local variable.
