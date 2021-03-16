@@ -1,7 +1,21 @@
 #+TITLE: ECE 420 Assignment 2
 #+AUTHOR: Arun Woosaree
+#+LaTeX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [letterpaper]
+#+latex_header: \usepackage{amsthm}
+#+latex_header: \newtheorem{thm}{}
 #+OPTIONS: toc:nil
+#+begin_src elisp :exports none
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-latex-minted-options '(("linenos" "true"))
+      org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+end_src
 
+#+RESULTS:
+| pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f | pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f |
 
 * Trapezoidal Rule
 
@@ -32,6 +46,44 @@ So thread 0 wil get iterations 1, 3, 5, ... 9999 while thread 1 will get iterati
 
 
 * Odd-Even Transposition Sort
+#+begin_src c
+for (phase = 0; phase < n; phase++) {
+  if (phase % 2 == 0)
+#pragma omp parallel for numthreads(threadcount) default(none)                 \
+    shared(a, n) private(i, tmp)
+    for (i = 1; i < n; i += 2) {
+      if (a[i - 1] > a[i]) {
+        tmp = a[i - 1];
+        a[i - 1] = a[i];
+        a[i] = tmp;
+      }
+    }
+  else
+#pragma omp parallel for numthreads(threadcount) default(none)                 \
+    shared(a, n) private(i, tmp)
+    for (i = 1; i < n - 1; i += 2) {
+      if (a[i] > a[i + 1]) {
+        tmp = a[i + 1];
+        a[i + 1] = a[i];
+        a[i] = tmp;
+      }
+    }
+}
+#+end_src
+This is inefficient because there is an implicit ~fork~ and ~join~ for each ~parallel for~ iteration.
+This can be fixed by instead replacing each ~parallel for~ with just for.
+
+So, lines 3-4, and lines 13-14 above would both be replaced by this:
+#+begin_src c
+#pragma omp for
+#+end_src
+
+There is an example table in the notes which shows the improvement in run time:
+
+| thread count              |     1 |     2 |     3 |     4 |
+|---------------------------+-------+-------+-------+-------|
+| 2 parallel for directives | 0.770 | 0.453 | 0.358 | 0.305 |
+| 2 for directives          | 0.732 | 0.376 | 0.294 | 0.239 |
 
 * Maximum Value
 

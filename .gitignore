@@ -1,5 +1,11 @@
-notes.html
-notes.pdf
-notes.tex
-*.jpg
+.DS_Store
+.idea
+*.log
+tmp/
+
+
+**/*.tex
+**/*.pdf
 .auctex-auto/
+_minted-assignment2/
+converted_images/
