@@ -148,7 +148,7 @@ The first example, parallelize by rows is fine.
 #+end_src
 The second example needs some work. First, we see that the variable ~j~
 is declared as both a shared and a private variable. Furthermore, ~i~ is declared as a shared variable, when we are parallelizing by columns. To fix this, each thread can do a local calculation of what would go into ~v2[i]~, then update the global variable.
-Alternatively, the openMP reduction directive can be used.
+Alternatively, the OpenMP reduction directive can be used.
 
 #+begin_src c
 // Parallelize by columns
@@ -163,4 +163,120 @@ Alternatively, the openMP reduction directive can be used.
 
 * Output of Program
 
+Here is an explanation of what the code does: (found on docs.oracle.com)
+#+begin_src c
+#include <omp.h>
+#include <stdio.h>
+int main() {
+  omp_set_nested(1);
+  omp_set_dynamic(0);
+#pragma omp parallel num_threads(2)
+  {
+    if (omp_get_thread_num() == 0)
+      omp_set_num_threads(4); /* line A */
+    else
+      omp_set_num_threads(6); /* line B */
+
+    /* The following statement will print out
+     *
+     * 0: 2 4
+     * 1: 2 6
+     *
+     * omp_get_num_threads() returns the number
+     * of the threads in the team, so it is
+     * the same for the two threads in the team.
+     */
+    printf("%d: %d %d\n", omp_get_thread_num(), omp_get_num_threads(),
+           omp_get_max_threads());
+
+/* Two inner parallel regions will be created
+ * one with a team of 4 threads, and the other
+ * with a team of 6 threads.
+ */
+#pragma omp parallel
+    {
+#pragma omp master
+      {
+        /* The following statement will print out
+         *
+         * Inner: 4
+         * Inner: 6
+         */
+        printf("Inner: %d\n", omp_get_num_threads());
+      }
+      omp_set_num_threads(7); /* line C */
+    }
+
+    /* Again two inner parallel regions will be created,
+     * one with a team of 4 threads, and the other
+     * with a team of 6 threads.
+     *
+     * The omp_set_num_threads(7) call at line C
+     * has no effect here, since it affects only
+     * parallel regions at the same or inner nesting
+     * level as line C.
+     */
+
+#pragma omp parallel
+    { printf("count me.\n"); }
+  }
+  return (0);
+}
+#+end_src
+
+One possible output is:
+#+begin_example
+0: 2 4
+Inner: 4
+1: 2 6
+Inner: 6
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+#+end_example
+
+I also got the following outputs by compiling and running the program on my computer:
+#+begin_example
+0: 2 4
+1: 2 6
+Inner: 4
+count me.
+count me.
+count me.
+count me.
+Inner: 6
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+#+end_example
+
+
+#+begin_example
+1: 2 6
+0: 2 4
+Inner: 6
+Inner: 4
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+count me.
+#+end_example
+
+Of course, there are more possible outputs which can be found by running the program more times.
 * Fibonacci
