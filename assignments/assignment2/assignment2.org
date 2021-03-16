@@ -125,6 +125,41 @@ int lp
 #+end_src
 
 * Matrix Vector Multiplication
+#+begin_src c
+// Parallelize by rows
+#pragma omp parallel default(none) shared(v2, v1, matrix, tam) private(i, j)
+{
+#pragma omp for
+  for (i = 0; i < tam; i++)
+    for (j = 0; j < tam; j++)
+      v2[i] += matrix[i][j] * v1[j];
+}
+#+end_src
+The first example, parallelize by rows is fine.
+#+begin_src c
+// Parallelize by columns
+#pragma omp parallel default(none) shared(j, v2, v1, matrix, tam) private(i, j)
+{
+  for (i = 0; i < tam; i++)
+#pragma omp for
+    for (j = 0; j < tam; j++)
+      v2[i] += matrix[i][j] * v1[j];
+}
+#+end_src
+The second example needs some work. First, we see that the variable ~j~
+is declared as both a shared and a private variable. Furthermore, ~i~ is declared as a shared variable, when we are parallelizing by columns. To fix this, each thread can do a local calculation of what would go into ~v2[i]~, then update the global variable.
+Alternatively, the openMP reduction directive can be used.
+
+#+begin_src c
+// Parallelize by columns
+#pragma omp parallel default(none) shared(i, v2, v1, matrix, tam) private(j)
+{
+  for (i = 0; i < tam; i++)
+#pragma omp for reduction(+ : v2[i])
+    for (j = 0; j < tam; j++)
+      v2[i] += matrix[i][j] * v1[j];
+}
+#+end_src
 
 * Output of Program
 
