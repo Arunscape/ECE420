@@ -87,6 +87,43 @@ There is an example table in the notes which shows the improvement in run time:
 
 * Maximum Value
 
+#+begin_src c
+int largest = 0;
+#pragma omp parallel for
+for (int i = 0; i < 1000; i++) {
+#pragma omp critical
+  if (data[i] > largest)
+    largest = data[i];
+}
+#+end_src
+
+We can improve the performance of this code by first computing a local maximum for each section that each thread works on.
+That way, we hit the critical section less often. We do this by using the openmp directive to say that lp is a private
+local variable for each thread. When each thread finds its local maximum, the local maxumum is compared to the
+global maximum, and if it is higher, the global maximum is updated:
+
+#+begin_src c
+int largest = 0;
+int lp
+
+#pragma omp parallel private(lp)
+{
+  lp = 0;
+#pragma omp for
+  for (int i = 0; i < 1000; i++) {
+    if (data[i] > lp)
+      lp = data[i];
+  }
+  if (lp > largest) {
+#pragma critical
+    {
+      if (lp > largest)
+        largest = lp;
+    }
+  }
+}
+#+end_src
+
 * Matrix Vector Multiplication
 
 * Output of Program
