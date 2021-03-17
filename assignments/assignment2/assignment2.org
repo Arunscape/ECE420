@@ -279,4 +279,87 @@ count me.
 #+end_example
 
 Of course, there are more possible outputs which can be found by running the program more times.
+
+
 * Fibonacci
+#+begin_example
+export OMP_NUM_THREADS = 3
+export OMP_NESTED = TRUE
+export OMP_DYNAMIC = FALSE
+#+end_example
+
+** Parallelize using OpenMP Sections Directives
+#+begin_src c
+#include <omp.h>
+#include <stdio.h>
+
+int fib(int n) {
+  int i, j;
+  if (n < 2)
+    return n;
+  else {
+#pragma omp parallel sections
+    {
+#pragma omp section
+      { i = fib(n - 1); }
+#pragma omp section
+      { j = fib(n - 2); }
+    }
+    return i + j;
+  }
+}
+
+int main() {
+  int result;
+  int n = 10;
+
+#pragma omp parallel shared(n)
+  {
+#pragma omp single
+    {
+      result = fib(n);
+      printf("Result is %d\n", result);
+    }
+  }
+  return 0;
+}
+#+end_src
+** Parallelize using OpenMP Tasks Directives
+#+begin_src c
+#include <omp.h>
+#include <stdio.h>
+int fib(int n) {
+  int i, j;
+  if (n < 2)
+    return n;
+  else {
+#pragma omp task shared(i) firstprivate(n)
+    i = fib(n - 1);
+
+#pragma omp task shared(j) firstprivate(n)
+    j = fib(n - 2);
+
+#pragma omp taskwait
+    return i + j;
+  }
+}
+
+int main() {
+  int result;
+  int n = 5;
+
+#pragma omp parallel shared(n)
+  {
+#pragma omp single
+    {
+      result = fib(n);
+      printf("Result is %d\n", result);
+    }
+  }
+  return 0;
+}
+#+end_src
+
+*** num threads in 1)
+
+*** num threads in 2)
