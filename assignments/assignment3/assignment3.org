@@ -1,0 +1,152 @@
+#+TITLE: ECE 420 Assignment 3
+#+AUTHOR: Arun Woosaree
+#+LaTeX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [letterpaper]
+#+latex_header: \usepackage{amsthm}
+#+latex_header: \newtheorem{thm}{}
+#+OPTIONS: toc:nil
+#+begin_src elisp :exports none
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-latex-minted-options '(("linenos" "true"))
+      org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+end_src
+
+
+* Multiplying Matrices
+** Serial time complexity
+The serial time complexity for this algorithm is $O(n^3)$
+** Expression for parallel run time
+There are $\sqrt{p}$ rows of all-to-all broadcasts
+
+each is among a group of $\sqrt{p}$ processes
+
+the communication time is
+\[
+t_s \log{\sqrt{p}} + t_w \frac{n^2}{p} \left( \sqrt{p} - 1 \right)
+\]
+
+So, the computation time is
+
+\[
+\sqrt{p} \left( \frac{n}{\sqrt{p}} \right)^3 = \frac{n^3}{p}
+\]
+
+Substituting, the parallel time is:
+\[
+\frac{n^3}{p} + 2 \left( t_s \log{\sqrt{p}} + t_w \frac{n^2}{p} (\sqrt{p} - 1) \right)
+\]
+
+
+** Cost-optimal value of p
+because the cost is
+\[
+n^3 + t_s p \log{p} + 2t_w n^2 (\sqrt{p} - 1)
+\]
+
+this parallel algorithm is cost-optimal for all p, where the runtime is $O(n^2)$
+
+* Time
+The broadcast results in $\log{p}$ point-to-point simple message transfers
+
+each of these transfers has a time cost of $t_s + t_w m$
+
+So, the total time taken is
+
+\[(\log{p}) (t_s + t_w m)\]
+
+* Hypercube
+
+For a p-node hypercube the size of each message in the ith of the $\log{p} steps$ is
+$2^(i-1) m$
+
+The time for a pair of nodes to send and receive messages from each other in the ith step is
+\[t_s + 2^{i-1} t_w m\]
+
+So, the time to complete everything is
+
+\[\sum_{i=1}^{\log{p}} t_s + 2^{i-1} t_w m\]
+
+Which simplifies to
+\[t_s \log{p} + t_w m (p-1)\]
+
+* (Un)safe
+
+The safety of this program is dependent on the implementation.
+There is a chance it could work, if the system has buffered send implemented.
+However, because we do not necessarily know the implementation, this program is unsafe.
+It will fail if the send is not buffered.
+
+** Method 1
+use ~MPI_sendrecv~ so that the receive buffer is supplied at the same time as send
+
+| Process 0                  | Process 1                  |
+|----------------------------+----------------------------|
+| Sendrecv to/from Process 1 | Sendrecv to/from Process 0 |
+
+** Method 2
+the operations could be re-ordered as follows:
+| Process 0              | Process 1              |
+|------------------------+------------------------|
+| Send Data to Process 1 | Receive from Process 0 |
+| Receive from Process 1 | Send Data to Process 0 |
+
+** Method 3
+Non-blocking operations can be used for the sen operations, the receive operations, or both
+| Process 0            | Process 1            |
+|----------------------+----------------------|
+| Isend to Process 1   | Isend to Process 0   |
+| Irecv from Process 1 | Irecv from Process 0 |
+| Waitall              | Waitall              |
+
+* Exact cost
+** 1D Row-wise partitioning
+\[T_p = t_c \frac{n^2}{p} + t_s \log{p} + t_w \frac{n}{p} (p-1)\]
+
+and the cost is:
+\[t_c n^2 + t_s p \log{p} + t_w n (p-1)\]
+** 1D Column-wise partitioning
+
+for column-wise partitioning, we assume the messages of size $\frac{n}{p}$ are sent one at a time.
+This means that there are $p-1$ single message transfers.
+So, scatter time is $(t_s + (n/p) t_w)(p-1)$
+\[T_p = t_c \frac{n^2}{p} + (t_s nt_w) \log{p} + (t_s + \frac{n}{p} t_w) (p - 1)\]
+
+and the cost is:
+\[t_cn^2 + (t_s + nt_w)p\log{p} + (t_sp + nt_w)(p-1) \]
+** 2D Partitioning
+\[T_p = t_c \frac{n^2}{p} + \left(t_s + t_w \frac{n}{\sqrt{p}}\right) (1 + 2 \log{\sqrt{p}})\]
+
+and the cost is:
+\[t_c n^2 + \left(t_s + t_w \frac{n}{\sqrt{p}}\right)(1 + p \log{p})\]
+
+** Alternative implementation
+
+Because we're using AllReduce, it will take $t_s \log{p} + m t_w (p-1)$, where the message size is n.
+We assume that the all-to-all broadcast of messages is of size n, and do a local reduction at every node.
+
+\[T_p = t_c \frac{n^2}{p} + (t_s + nt_w)\log{p}\]
+
+and the cost is:
+\[t_c n^2 + (t_s + nt_w)p\log{p}\]
+
+* Bucket sort
+** Time complexity
+
+# Gather takes time $t_s \log{p} + mt_w (p-1)$, where message size m = $\frac{n}{p}$ when a hypercube algorithm is used.
+# This is equal to $O(n)$
+
+Gather takes time $\Theta(n)$, so
+
+\[T_p = \Theta\left(\frac{n^2}{p^2}\right) + \Theta(n) + \Theta(n)\]
+
+the cost is \[\Theta\left(\frac{n^2}{p}\right) + \Theta(np)\]
+
+\[T_s = \Theta\left(\frac{n^2}{p^2}\right) p + \Theta(n) = \Theta\left(\frac{n^2}{p}\right) + \Theta(n) \]
+
+
+** Cost-optimal value of p
+
+p is cost optimal when $p = O(\sqrt{n})$
